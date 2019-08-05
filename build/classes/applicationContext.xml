@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	 
+	 <!--
+    	使spring扫描包下的所有类，让标注spring注解的类生效 
+    	若扫描到有@Component @Controller@Service等这些注解的类，则把这些类注册为bean
+    -->
+    <context:component-scan base-package="com.school.service"/>
+
+    
+	<!--PropertyPlaceholderConfigurer 类 读取database的外部文件 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+		<property name="location">
+
+			<value>classpath:database.properties</value>
+
+		</property>
+	</bean>
+	<!--  连接数据源 -->
+    <bean  id="dataSource"  class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+          <!--  加载驱动 -->
+        <property name="driverClassName"  value="${driver}"></property>
+        <!--  url连接地址 -->
+        <property name="url"  value="${url}"></property>
+        <!-- 用户名 -->
+        <property name="username"  value="${user}"></property>
+        <!--  密码 -->
+        <property name="password"  value="${password}"></property>
+        
+    </bean>
+    <!--  事务的处理类 -->
+    <bean id="transactionManager"   class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    
+         <property name="dataSource"   ref="dataSource"></property>
+    
+    </bean>
+    <tx:annotation-driven/>
+    <!--  创建sqlsessionfactorybean 对象 -->
+    <bean  id="sqlSessioFactory"  class="org.mybatis.spring.SqlSessionFactoryBean">
+    
+    <!--  引入数据源 -->
+             <property name="dataSource"  ref="dataSource"></property>
+             <!--  引入mybatis的配置文件 -->
+             <property name="configLocation"  value="classpath:mybatis-config.xml"></property>
+             
+    </bean>
+    <!--  自动扫描 dao包下的所有接口 -->
+    <bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+         <property name="basePackage"  value="com.school.dao"></property>
+    
+    </bean>
+     
+</beans>
